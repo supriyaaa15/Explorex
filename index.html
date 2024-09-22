@@ -4,6 +4,8 @@
     <title>Map Navigator</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css" />
+
     <style>
         #map {
             height: 100%;
@@ -13,20 +15,66 @@
             margin: 0;
             padding: 0;
         }
-        #controls {
+        /* #controls {
             height: 20%;
             padding: 10px;
+        } */
+        .hidden {
+            display: none;
+        }
+        .custom-marker {
+        background-color: rgb(27, 130, 221);
+        border-radius: 50%;
+        width: 15px;
+        height: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 10px;
+        border: 2px solid white;
+    }
+    .find-me-button {
+            position: absolute;
+            top: 100px;
+            left:10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            z-index: 1000; /* Ensure the button is above the map */
+        }
+        .find-me-button:hover {
+            background-color: #0056b3;
+        }
+        .geocoder-control {
+            position: absolute;
+            top: 10px; /* Adjust this value to position below the satellite button */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            z-index: 1000;
+        }
+        .geocoder-control input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
-    <!-- <div id="controls">
-        <input type="text" id="start" placeholder="Start location">
-        <input type="text" id="end" placeholder="End location">
-        <button onclick="planRoute()">Plan Route</button>
-    </div> -->
     <div id="map"></div>
+
+    <button class="find-me-button" onclick="map.locate({setView: true, maxZoom: 16});">Find Me</button>
+   
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <script src="main.js"></script>
