@@ -53,25 +53,6 @@ function onLocationFound(e) {
         })   
 }
 
-// navigator.geolocation.watchPosition(function(position) {
-//     var latlng = {
-//         lat: position.coords.latitude,
-//         lng: position.coords.longitude
-//     };
-//     // map.setView(latlng, 16);
-//     // map.flyTo(latlng, 15, { animate: true, duration: 2 });
-//     onLocationFound({
-//         latlng: latlng,
-//         accuracy: position.coords.accuracy
-//     });
-// }, function(error) {
-//     onLocationError(error);
-// }, {
-//     enableHighAccuracy: true,
-//     timeout: 10000,
-//     maximumAge: 0
-// });
-
 function onLocationError(e) {
     alert('Geolocation error: ' + e.message);
     // Fallback to default location
@@ -166,20 +147,46 @@ async function fetchDirections(startCoords, endCoords) {
         return null;
     }
 }
-
-var searchControl = L.esri.Geocoding.geosearch(
-    {
-        position: 'topright', // Position the search control
-        placeholder: 'Search'
+   
+  // Function to search for a place using Nominatim (OpenStreetMap geocoding)
+  async function searchPlace() {
+    var searchInput = document.getElementById('searchInput').value;
+    if (!searchInput) {
+        alert("Please enter a location.");
+        return;
     }
-).addTo(map);
-var results = L.layerGroup().addTo(map);
+try{
+    // Use Nominatim OpenStreetMap API for geocoding
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchInput)}`);
+    const results = await response.json();
 
-searchControl.on('results', function(data) {
-    results.clearLayers();
-    for (var i = data.results.length - 1; i >= 0; i--) {
-        results.addLayer(L.marker(data.results[i].latlng));
+    if (results.length > 0) {
+        const lat = results[0].lat;
+        const lon = results[0].lon;
+        const placeName = results[0].display_name;
+
+// Fetch weather data using OpenWeatherMap API
+const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=4edae025e8f4db3bc4af7d2fb2aad71a&units=metric`);
+const weatherData = await weatherResponse.json();
+
+// Extract relevant weather information
+const temperature = weatherData.main.temp;
+const weatherDescription = weatherData.weather[0].description;
+
+        // Center the map at the search result location
+        map.setView([lat, lon], 13);
+
+        // Add a marker at the search result location
+        L.marker([lat, lon]).addTo(map)
+            .bindPopup(`<b>${placeName}</b>
+                 <b>Temperature:</b> ${temperature}°C<br>
+                    <b>Weather:</b> ${weatherDescription}`)
+            .openPopup();
+    } else {
+        alert("Location not found. Try searching for another place.");
+    }}
+    catch(error){
+        console.error("Error fetching location data:", error);
+            alert("An error occurred while searching for the location. Please try again.");
     }
-}); 
-  var geocoderControl = document.querySelector('.geocoder-control');
-        geocoderControl.classList.add('geocoder-control');
+};
